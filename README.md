@@ -61,7 +61,7 @@ Verify the setting with `sysctl vm.overcommit_memory`; it must report `1`.
 
 ## Upgrades
 
-Keep `NETBOX_IMAGE` pinned. NetBox Docker requires its image support-files
-version to match the deployment version. Review the
+Keep the NetBox image pinned in `docker-compose.yml`. NetBox Docker requires
+its image support-files version to match the deployment version. Review the
 [netbox-docker release notes](https://github.com/netbox-community/netbox-docker/releases)
-before changing the `NETBOX_IMAGE` tag or updating the stack in Portainer.
+before changing the NetBox image tag or updating the stack in Portainer.

@@ -1,6 +1,7 @@
 x-netbox-environment: &netbox-environment
   DB_HOST: postgres
   DB_PORT: "5432"
+  DB_WAIT_DEBUG: "1"
   DB_NAME: ${POSTGRES_DB}
   DB_USER: ${POSTGRES_USER}
   DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -17,7 +18,7 @@ x-netbox-environment: &netbox-environment
 
 services:
   netbox:
-    image: ${NETBOX_IMAGE}
+    image: docker.io/netboxcommunity/netbox:v4.7-5.1.1
     env_file:
       - stack.env
     environment: *netbox-environment
@@ -45,7 +46,7 @@ services:
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
 
   netbox-worker:
-    image: ${NETBOX_IMAGE}
+    image: docker.io/netboxcommunity/netbox:v4.7-5.1.1
     env_file:
       - stack.env
     environment: *netbox-environment
@@ -71,7 +72,7 @@ services:
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
 
   netbox-housekeeping:
-    image: ${NETBOX_IMAGE}
+    image: docker.io/netboxcommunity/netbox:v4.7-5.1.1
     env_file:
       - stack.env
     environment: *netbox-environment
@@ -89,9 +90,13 @@ services:
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
 
   postgres:
-    image: ${POSTGRES_IMAGE}
+    image: docker.io/postgres:18-alpine
     env_file:
       - stack.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - netbox-internal
     healthcheck:
@@ -104,7 +109,7 @@ services:
       - netbox-postgres:/var/lib/postgresql
 
   redis:
-    image: ${VALKEY_IMAGE}
+    image: docker.io/valkey/valkey:9.1-alpine
     env_file:
       - stack.env
     networks:
@@ -123,7 +128,7 @@ services:
       - netbox-redis-data:/data
 
   redis-cache:
-    image: ${VALKEY_IMAGE}
+    image: docker.io/valkey/valkey:9.1-alpine
     env_file:
       - stack.env
     networks:
