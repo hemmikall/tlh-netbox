@@ -1,0 +1,113 @@
+services:
+  netbox:
+    image: ${NETBOX_IMAGE}
+    env_file:
+      - stack.env
+    user: "netbox:root"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    ports:
+      - "${NETBOX_PORT}:8080"
+    healthcheck:
+      test: /opt/netbox/health.sh
+      start_period: 90s
+      timeout: 3s
+      interval: 15s
+      retries: 5
+    volumes:
+      - netbox-media-files:/opt/netbox/netbox/media:rw
+      - netbox-reports-files:/opt/netbox/netbox/reports:rw
+      - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
+
+  netbox-worker:
+    image: ${NETBOX_IMAGE}
+    env_file:
+      - stack.env
+    user: "netbox:root"
+    depends_on:
+      netbox:
+        condition: service_healthy
+    command:
+      - /opt/netbox/venv/bin/python
+      - /opt/netbox/netbox/manage.py
+      - rqworker
+    healthcheck:
+      test: ps -aux | grep -v grep | grep -q rqworker || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 5
+    volumes:
+      - netbox-media-files:/opt/netbox/netbox/media:rw
+      - netbox-reports-files:/opt/netbox/netbox/reports:rw
+      - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
+
+  netbox-housekeeping:
+    image: ${NETBOX_IMAGE}
+    env_file:
+      - stack.env
+    user: "netbox:root"
+    depends_on:
+      netbox:
+        condition: service_healthy
+    command:
+      - /opt/netbox/housekeeping.sh
+    volumes:
+      - netbox-media-files:/opt/netbox/netbox/media:rw
+      - netbox-reports-files:/opt/netbox/netbox/reports:rw
+      - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
+
+  postgres:
+    image: ${POSTGRES_IMAGE}
+    env_file:
+      - stack.env
+    healthcheck:
+      test: pg_isready -q -t 2 -d $$POSTGRES_DB -U $$POSTGRES_USER
+      start_period: 20s
+      timeout: 30s
+      interval: 10s
+      retries: 5
+    volumes:
+      - netbox-postgres:/var/lib/postgresql
+
+  redis:
+    image: ${VALKEY_IMAGE}
+    env_file:
+      - stack.env
+    command:
+      - sh
+      - -c
+      - valkey-server --appendonly yes --requirepass $$REDIS_PASSWORD
+    healthcheck: &valkey-healthcheck
+      test: '[ $$(valkey-cli --pass "$$REDIS_PASSWORD" ping) = "PONG" ]'
+      start_period: 5s
+      timeout: 3s
+      interval: 1s
+      retries: 5
+    volumes:
+      - netbox-redis-data:/data
+
+  redis-cache:
+    image: ${VALKEY_IMAGE}
+    env_file:
+      - stack.env
+    command:
+      - sh
+      - -c
+      - valkey-server --requirepass $$REDIS_CACHE_PASSWORD
+    healthcheck: *valkey-healthcheck
+    volumes:
+      - netbox-redis-cache-data:/data
+
+volumes:
+  netbox-media-files:
+  netbox-postgres:
+  netbox-redis-cache-data:
+  netbox-redis-data:
+  netbox-reports-files:
+  netbox-scripts-files:
