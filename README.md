@@ -16,13 +16,16 @@ prebuilt `netboxcommunity/netbox:v4.7-5.1.1` image plus PostgreSQL and Valkey.
 3. Under **Environment variables**, choose **Load variables from .env file**
 	and upload this repository's `.env` file.
 4. Deploy the stack. Portainer creates `stack.env` from those values and passes
-	it to every service.
+	it to every service. The Compose file sets the internal database and Valkey
+	hostnames itself, so the stack works whether it is uploaded or deployed from
+	a Git repository.
 5. Open `http://<server>:6789` and sign in with `SUPERUSER_NAME` and
 	`SUPERUSER_PASSWORD` from `.env`.
 
-`stack.env` is the bridge expected by Portainer's Docker Standalone stack
-environment. It is safe to commit because it contains variable references only.
-The generated `.env` contains secrets and is excluded from Git.
+`stack.env` is the bridge used by local Docker Compose. On a Portainer Docker
+Standalone deployment, Portainer creates its own `stack.env` from the uploaded
+`.env` variables. The generated `.env` contains secrets and is excluded from
+Git.
 
 ## Local validation
 
