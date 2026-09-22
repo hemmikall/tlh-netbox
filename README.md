@@ -6,13 +6,15 @@ Portainer-ready deployment for the community-maintained
 ## Deploy with Portainer
 
 This stack is for a **Docker Standalone** environment. It uses the upstream
-prebuilt `netboxcommunity/netbox:v4.7-5.1.1` image plus PostgreSQL and Valkey.
+`netboxcommunity/netbox:v4.7-5.1.1` image as its base, then builds a local
+image with the Floorplan and Topology Views plugins, plus PostgreSQL and Valkey.
 
 1. Edit `.env` before deployment. Set `ALLOWED_HOSTS` to the hostname(s) and/or
 	IP address used to reach NetBox. Replace the initial administrator email and
 	credentials if this instance will be exposed outside a trusted network.
-2. In Portainer, select **Stacks** then **Add stack**, choose **Upload**, and
-	upload `docker-compose.yml`.
+2. In Portainer, select **Stacks** then **Add stack**, choose **Repository**,
+	and point it to this repository. Portainer must receive the complete build
+	context: `docker-compose.yml`, `Dockerfile`, and `plugin_requirements.txt`.
 3. Under **Environment variables**, choose **Load variables from .env file**
 	and upload this repository's `.env` file.
 4. Deploy the stack. Portainer creates `stack.env` from those values and passes
@@ -45,6 +47,19 @@ For a local Docker Compose deployment, run:
 ```sh
 docker compose up -d
 ```
+
+## Plugins
+
+The custom image installs these plugins, which are enabled for both the web
+application and background worker:
+
+- `netbox-floorplan-plugin` (`netbox_floorplan`)
+- `netbox-topology-views` (`netbox_topology_views`)
+
+Plugin packages are listed in `plugin_requirements.txt`; add or version-pin
+packages there, then add their NetBox module name and configuration to the
+shared environment block in `docker-compose.yml`. Build and deploy the stack
+again after changing plugin requirements.
 
 ## Docker Host Prerequisite
 
