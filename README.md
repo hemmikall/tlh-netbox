@@ -27,6 +27,11 @@ Standalone deployment, Portainer creates its own `stack.env` from the uploaded
 `.env` variables. The generated `.env` contains secrets and is excluded from
 Git.
 
+The stack attaches all services to the dedicated `${NETBOX_NETWORK_NAME}`
+bridge network. PostgreSQL and Valkey have no host port mappings, so they are
+reachable only by the NetBox services on that network. The only published port
+is NetBox on `NETBOX_PORT`.
+
 ## Local validation
 
 Validate the rendered configuration without starting containers:

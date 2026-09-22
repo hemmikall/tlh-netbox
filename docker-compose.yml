@@ -21,6 +21,8 @@ services:
     env_file:
       - stack.env
     environment: *netbox-environment
+    networks:
+      - netbox-internal
     user: "netbox:root"
     depends_on:
       postgres:
@@ -47,6 +49,8 @@ services:
     env_file:
       - stack.env
     environment: *netbox-environment
+    networks:
+      - netbox-internal
     user: "netbox:root"
     depends_on:
       netbox:
@@ -71,6 +75,8 @@ services:
     env_file:
       - stack.env
     environment: *netbox-environment
+    networks:
+      - netbox-internal
     user: "netbox:root"
     depends_on:
       netbox:
@@ -86,6 +92,8 @@ services:
     image: ${POSTGRES_IMAGE}
     env_file:
       - stack.env
+    networks:
+      - netbox-internal
     healthcheck:
       test: pg_isready -q -t 2 -d $$POSTGRES_DB -U $$POSTGRES_USER
       start_period: 20s
@@ -99,6 +107,8 @@ services:
     image: ${VALKEY_IMAGE}
     env_file:
       - stack.env
+    networks:
+      - netbox-internal
     command:
       - sh
       - -c
@@ -116,6 +126,8 @@ services:
     image: ${VALKEY_IMAGE}
     env_file:
       - stack.env
+    networks:
+      - netbox-internal
     command:
       - sh
       - -c
@@ -136,3 +148,8 @@ volumes:
   netbox-redis-data:
   netbox-reports-files:
   netbox-scripts-files:
+
+networks:
+  netbox-internal:
+    name: ${NETBOX_NETWORK_NAME}
+    driver: bridge
