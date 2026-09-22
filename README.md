@@ -17,7 +17,7 @@ prebuilt `netboxcommunity/netbox:v4.7-5.1.1` image plus PostgreSQL and Valkey.
 	and upload this repository's `.env` file.
 4. Deploy the stack. Portainer creates `stack.env` from those values and passes
 	it to every service.
-5. Open `http://<server>:8000` and sign in with `SUPERUSER_NAME` and
+5. Open `http://<server>:6789` and sign in with `SUPERUSER_NAME` and
 	`SUPERUSER_PASSWORD` from `.env`.
 
 `stack.env` is the bridge expected by Portainer's Docker Standalone stack
@@ -37,6 +37,19 @@ For a local Docker Compose deployment, run:
 ```sh
 docker compose up -d
 ```
+
+## Docker Host Prerequisite
+
+Valkey requires Linux memory overcommit to be enabled so background persistence
+does not fail. Run this once on the Docker/Portainer host, not in a container:
+
+```sh
+sudo sysctl -w vm.overcommit_memory=1
+echo 'vm.overcommit_memory = 1' | sudo tee /etc/sysctl.d/99-netbox-valkey.conf
+sudo sysctl --system
+```
+
+Verify the setting with `sysctl vm.overcommit_memory`; it must report `1`.
 
 ## Upgrades
 

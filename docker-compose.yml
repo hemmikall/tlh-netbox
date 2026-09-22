@@ -100,7 +100,12 @@ services:
       - sh
       - -c
       - valkey-server --requirepass $$REDIS_CACHE_PASSWORD
-    healthcheck: *valkey-healthcheck
+    healthcheck:
+      test: '[ $$(valkey-cli --pass "$$REDIS_CACHE_PASSWORD" ping) = "PONG" ]'
+      start_period: 5s
+      timeout: 3s
+      interval: 1s
+      retries: 5
     volumes:
       - netbox-redis-cache-data:/data
 
