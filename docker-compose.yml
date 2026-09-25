@@ -49,6 +49,7 @@ services:
       - netbox-media-files:/opt/netbox/netbox/media:rw
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
+      - netbox-static-files:/opt/netbox/netbox/static:rw
 
   netbox-worker:
     build:
@@ -78,6 +79,7 @@ services:
       - netbox-media-files:/opt/netbox/netbox/media:rw
       - netbox-reports-files:/opt/netbox/netbox/reports:rw
       - netbox-scripts-files:/opt/netbox/netbox/scripts:rw
+      - netbox-static-files:/opt/netbox/netbox/static:rw
 
   postgres:
     image: docker.io/postgres:18-alpine
@@ -143,6 +145,7 @@ volumes:
   netbox-redis-data:
   netbox-reports-files:
   netbox-scripts-files:
+  netbox-static-files:
 
 networks:
   netbox-internal:
