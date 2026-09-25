@@ -19,6 +19,16 @@ x-netbox-environment: &netbox-environment
   CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
 
 services:
+  netbox-static-init:
+    image: tlh-netbox:plugins
+    user: "root"
+    entrypoint:
+      - sh
+      - -c
+      - chown -R netbox:root /opt/netbox/netbox/static && chmod -R g+rwX /opt/netbox/netbox/static
+    volumes:
+      - netbox-static-files:/opt/netbox/netbox/static
+
   netbox:
     build:
       context: .
@@ -37,6 +47,8 @@ services:
         condition: service_healthy
       redis-cache:
         condition: service_healthy
+      netbox-static-init:
+        condition: service_completed_successfully
     ports:
       - "${NETBOX_PORT}:8080"
     healthcheck:
